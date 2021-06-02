@@ -5,22 +5,22 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using uhttpsharp.Helpers;
-using uhttpsharp.Interfaces;
+using System.Threading.Tasks;
+using uhttpsharp;
 using WebProt.WebHttp.Provider.Extensions;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
 namespace WebProt.Provider.Plugin.Ping
 {
-    public class WebExtension : WebSocketBehavior, IPlugable, IProtocolPlugin, IRoutable
+    public class WebExtension : WebSocketBehavior, IPlugable, IProtocolPlugin
     {
         #region Variables
         internal PluginsManager server;
         public const string WebProtNotifierProvider = "WebProt.WebSocket.Provider";
         #endregion
 
-        public void Initialize(string[] args, dynamic parent, Router router)
+        public void Initialize(string[] args, dynamic parent)
         {
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
             this.server = parent;
@@ -28,15 +28,29 @@ namespace WebProt.Provider.Plugin.Ping
 
         public void Initialize(string[] args, PluginsManager parent, dynamic server)
         {
-            AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
-            server.AddWebSocketService<WebExtension>("/ping");
+            if (server != null)
+            {
+                Type type = ((object)server).GetType();
+                if (type != null)
+                {
+                    if (type.Name == "Router")
+                    {
+
+                    }
+                    else
+                    {
+                        AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
+                        server.AddWebSocketService<WebExtension>("/ping");
+                    }
+                }
+            }
         }
 
-        public Dictionary<string, RouteAction> GetRoutes()
+        public Dictionary<string, Func<IHttpContext, Dictionary<string, string>, Func<Task>, Task>> GetRoutes()
         {
-            var routes = new Dictionary<string, RouteAction>();
+            var routes = new Dictionary<string, Func<IHttpContext, Dictionary<string, string>, Func<Task>, Task>>();
 
-            routes.Add(@"/ping", (router, ctx, data, handler) =>
+            routes.Add(@"/ping", (ctx, data, handler) =>
             {
                 return ctx.OutputUtf8(JsonConvert.SerializeObject(new
                 {
