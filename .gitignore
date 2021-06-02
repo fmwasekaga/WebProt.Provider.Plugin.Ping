@@ -2,5 +2,5 @@
 obj/
 bin/
 packages/
-Plugins/WebProt.Provider.Plugin.Ping/WebProt.Provider.Plugin.Ping_dev.csproj
-Plugins/WebProt.Provider.Plugin.Ping/WebProt.Provider.Plugin.Ping_dev.sln
+WebProt.Provider.Plugin.Ping_dev.csproj
+WebProt.Provider.Plugin.Ping_dev.sln
